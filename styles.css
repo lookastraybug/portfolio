@@ -225,3 +225,50 @@ html,body,#main{box-sizing:border-box;margin:0;padding:0}:root{-webkit-font-smoo
 
 html body { background: var(--token-25b31a9d-211f-4aed-b06c-add80335f614, rgb(255, 255, 255)); }
 
+/* Keep a locally hosted preview visible until the Vimeo player is ready. */
+.portfolio-video-loading {
+  visibility: hidden;
+}
+
+.portfolio-video-preview:not([hidden]) {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #151515;
+}
+
+.portfolio-video-preview img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portfolio-video-preview::before,
+.portfolio-video-preview::after {
+  content: "";
+  grid-area: 1 / 1;
+  z-index: 1;
+}
+
+.portfolio-video-preview::before {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #151515e6;
+}
+
+.portfolio-video-preview::after {
+  margin-left: 3px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 13px solid white;
+}
+
+.portfolio-video-preview:focus-visible {
+  outline: 3px solid white;
+  outline-offset: -5px;
+}
