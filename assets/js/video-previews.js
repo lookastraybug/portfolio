@@ -13,6 +13,7 @@
   };
   const playerOrigin = 'https://player.vimeo.com';
   const iframeSelector = 'iframe[src^="https://player.vimeo.com/video/"]';
+  const containerSelector = '[data-portfolio-video]';
   const previews = new WeakMap();
 
   function showPreview(frame, preview, visible) {
@@ -20,27 +21,31 @@
     frame.classList.toggle('portfolio-video-loading', visible);
   }
 
-  function addPreview(frame) {
-    if (previews.has(frame)) return;
-    const id = new URL(frame.src).pathname.split('/')[2];
+  function preparePlayer(container) {
+    const id = container.dataset.portfolioVideo;
     const title = videoTitles[id];
     if (!title) return;
 
-    const preview = document.createElement('a');
-    preview.className = 'portfolio-video-preview';
-    preview.href = 'https://vimeo.com/' + id;
-    preview.target = '_blank';
-    preview.rel = 'noopener';
-    preview.setAttribute('aria-label', 'Watch ' + title + ' on Vimeo');
+    let preview = container.querySelector('.portfolio-video-preview');
+    if (!preview) {
+      preview = document.createElement('a');
+      preview.className = 'portfolio-video-preview';
+      preview.href = 'https://vimeo.com/' + id;
+      preview.target = '_blank';
+      preview.rel = 'noopener';
+      preview.setAttribute('aria-label', 'Watch ' + title + ' on Vimeo');
 
-    const image = document.createElement('img');
-    image.src = 'assets/images/video-previews/' + id + '.jpg';
-    image.alt = '';
-    image.loading = 'lazy';
-    preview.append(image);
+      const image = document.createElement('img');
+      image.src = 'assets/images/video-previews/' + id + '.jpg';
+      image.alt = '';
+      image.loading = 'lazy';
+      preview.append(image);
+      container.append(preview);
+    }
 
+    const frame = container.querySelector(iframeSelector);
+    if (!frame || previews.has(frame)) return;
     frame.title = title;
-    frame.after(preview);
     previews.set(frame, preview);
     showPreview(frame, preview, true);
 
@@ -75,11 +80,12 @@
     for (const { addedNodes } of records) {
       for (const node of addedNodes) {
         if (!(node instanceof Element)) continue;
-        if (node.matches(iframeSelector)) addPreview(node);
-        node.querySelectorAll(iframeSelector).forEach(addPreview);
+        const container = node.closest(containerSelector);
+        if (container) preparePlayer(container);
+        node.querySelectorAll(containerSelector).forEach(preparePlayer);
       }
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
-  document.querySelectorAll(iframeSelector).forEach(addPreview);
+  document.querySelectorAll(containerSelector).forEach(preparePlayer);
 })();
